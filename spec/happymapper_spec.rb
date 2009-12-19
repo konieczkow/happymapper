@@ -623,5 +623,52 @@ describe HappyMapper do
       mapping.alert.severity.should == 'Severe'
     end
   end
+
+  describe "" do
+    before do
+      @user = User.new
+    end
+    
+    it "should provide #to_xml_node" do
+      @user.should respond_to(:to_xml_node)
+    end
+
+    it "should generate XML tags" do
+      @user.to_xml_node.to_s(:indent => false).should == "<user/>"
+    end
+
+    it "should generate XML tags for elements" do
+      @user.name = "Maxim"
+      @user.to_xml_node.to_s(:indent => false).should == "<user><name>Maxim</name></user>"
+    end
+
+    it "should generate XML attributes for attributes" do
+      obj = FamilySearch::Person.new
+      obj.version = "1.2.3.4"
+      obj.to_xml_node.to_s(:indent => false).should == '<person version="1.2.3.4"/>'
+    end
+
+    it "should generate XML for has_one relationship" do
+      obj = FedEx::Event.new
+      obj.address = FedEx::Address.new
+      obj.to_xml_node.to_s(:indent => false).should == '<Events><Address/></Events>'
+    end
+
+    it "should generate XML for has_many relationship" do
+      obj = FeatureBullet.new
+      obj.features = [Feature.new, Feature.new]
+      obj.to_xml_node.to_s(:indent => false).should == '<features_bullets><feature/><feature/></features_bullets>'
+    end
+
+    it "should provide #to_xml" do
+      @user.should respond_to(:to_xml)
+    end
+
+    it "should generate XML document" do
+      @user.name = "Maxim"
+      @user.to_xml.should == %Q(<?xml version="1.0" encoding="UTF-8"?>\n<user>\n  <name>Maxim</name>\n</user>\n)
+    end
+
+  end
   
 end

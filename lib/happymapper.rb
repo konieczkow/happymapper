@@ -112,6 +112,38 @@ module HappyMapper
       end
     end
   end
+
+  def to_xml_node
+    node = XML::Node.new(self.class.tag_name)
+
+    self.class.attributes.each do |attribute|
+      value = self.send(attribute.method_name)
+      node.attributes[attribute.name] = value unless value.nil?
+    end
+
+    self.class.elements.each do |element|
+      value = self.send(element.method_name)
+      unless value.nil?
+        if element.options.include?(:single)
+          if element.options[:single]
+            node << value.to_xml_node
+          else
+            value.each { |value_item| node << value_item.to_xml_node }
+          end
+        else
+          node << XML::Node.new(element.name, value)
+        end
+      end
+    end
+    node
+  end
+
+  def to_xml
+    document = XML::Document.new
+    document.root = to_xml_node
+    document.to_s
+  end
+  
 end
 
 require File.join(dir, 'happymapper/item')
