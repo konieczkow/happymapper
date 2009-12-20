@@ -118,7 +118,7 @@ module HappyMapper
 
     self.class.attributes.each do |attribute|
       value = self.send(attribute.method_name)
-      node.attributes[attribute.name] = value unless value.nil?
+      node.attributes[attribute.name] = value.to_s unless value.nil?
     end
 
     self.class.elements.each do |element|
@@ -128,7 +128,18 @@ module HappyMapper
           if element.options[:single]
             node << value.to_xml_node
           else
-            value.each { |value_item| node << value_item.to_xml_node }
+            current_node = node
+            if element.options[:group_tag]
+
+              group_tag = element.name
+              group_tag = element.options[:group_tag] if element.options[:group_tag].is_a? String
+
+              group_node = XML::Node.new(group_tag)
+              current_node << group_node
+              current_node = group_node
+            end
+            
+            value.each { |value_item| current_node << value_item.to_xml_node }
           end
         else
           node << XML::Node.new(element.name, value)

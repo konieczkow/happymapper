@@ -270,6 +270,21 @@ module GitHub
   end
 end
 
+module Groups
+  class GroupElement
+    include HappyMapper
+
+    element :id, String
+  end
+
+  class Group
+    include HappyMapper
+
+    has_many :GroupElements, GroupElement, :group_tag => "groupelements"
+  end
+end
+
+
 describe HappyMapper do
   
   describe "being included into another class" do
@@ -658,6 +673,12 @@ describe HappyMapper do
       obj = FeatureBullet.new
       obj.features = [Feature.new, Feature.new]
       obj.to_xml_node.to_s(:indent => false).should == '<features_bullets><feature/><feature/></features_bullets>'
+    end
+
+    it "should generate helper tag for has_many if :group_tag option is true" do
+      obj = Groups::Group.new
+      obj.GroupElements = [Groups::GroupElement.new, Groups::GroupElement.new]
+      obj.to_xml_node.to_s(:indent => false).should == '<group><groupelements><groupelement/><groupelement/></groupelements></group>'
     end
 
     it "should provide #to_xml" do
