@@ -123,29 +123,9 @@ module HappyMapper
 
     self.class.elements.each do |element|
       value = self.send(element.method_name)
-      unless value.nil?
-        if element.options.include?(:single)
-          if element.options[:single]
-            node << value.to_xml_node
-          else
-            current_node = node
-            if element.options[:group_tag]
-
-              group_tag = element.name
-              group_tag = element.options[:group_tag] if element.options[:group_tag].is_a? String
-
-              group_node = XML::Node.new(group_tag)
-              current_node << group_node
-              current_node = group_node
-            end
-            
-            value.each { |value_item| current_node << value_item.to_xml_node }
-          end
-        else
-          node << XML::Node.new(element.name, value)
-        end
-      end
+      has_one_and_has_many_to_xml(node, element, value) unless value.nil?
     end
+
     node
   end
 
@@ -153,6 +133,25 @@ module HappyMapper
     document = XML::Document.new
     document.root = to_xml_node
     document.to_s
+  end
+
+private
+
+  def has_one_and_has_many_to_xml(node, element, value)
+    node << XML::Node.new(element.name, value) and return unless element.options.include?(:single)
+
+    if element.options[:single]
+      node << value.to_xml_node
+    else
+      current_node = element.group_tag ? XML::Node.new(element.group_tag) : node; 
+
+      value.each do |value_item|
+        child_node = value_item.to_xml_node
+        current_node << child_node if child_node.attributes? or child_node.children?
+      end
+
+      node << current_node if element.group_tag and (current_node.attributes? or current_node.children?)
+    end
   end
   
 end

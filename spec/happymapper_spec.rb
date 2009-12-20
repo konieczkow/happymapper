@@ -274,7 +274,7 @@ module Groups
   class GroupElement
     include HappyMapper
 
-    element :id, String
+    attribute :id, String
   end
 
   class Group
@@ -671,14 +671,38 @@ describe HappyMapper do
 
     it "should generate XML for has_many relationship" do
       obj = FeatureBullet.new
-      obj.features = [Feature.new, Feature.new]
-      obj.to_xml_node.to_s(:indent => false).should == '<features_bullets><feature/><feature/></features_bullets>'
+      f1 = Feature.new
+      f1.name = "name1"
+      f2 = Feature.new
+      f2.name = "name2"
+      obj.features = [f1, f2]
+      obj.to_xml_node.to_s(:indent => false).should == '<features_bullets><feature><name>name1</name></feature><feature><name>name2</name></feature></features_bullets>'
+    end
+
+    it "should generate XML for has_many relationship and remove empty elements (without children and attributes)" do
+      obj = FeatureBullet.new
+      f1 = Feature.new
+      f2 = Feature.new
+      obj.features = [f1, f2]
+      obj.to_xml_node.to_s(:indent => false).should == '<features_bullets/>'
     end
 
     it "should generate helper tag for has_many if :group_tag option is true" do
       obj = Groups::Group.new
-      obj.GroupElements = [Groups::GroupElement.new, Groups::GroupElement.new]
-      obj.to_xml_node.to_s(:indent => false).should == '<group><groupelements><groupelement/><groupelement/></groupelements></group>'
+      ge1 = Groups::GroupElement.new
+      ge1.id = "id1"
+      ge2 = Groups::GroupElement.new
+      ge2.id = "id2"
+      obj.GroupElements = [ge1, ge2]
+      obj.to_xml_node.to_s(:indent => false).should == '<group><groupelements><groupelement id="id1"/><groupelement id="id2"/></groupelements></group>'
+    end
+
+    it "should generate helper tag for has_many if :group_tag option is true and remove empty elements (without children and attributes)" do
+      obj = Groups::Group.new
+      ge1 = Groups::GroupElement.new
+      ge2 = Groups::GroupElement.new
+      obj.GroupElements = [ge1, ge2]
+      obj.to_xml_node.to_s(:indent => false).should == '<group/>'
     end
 
     it "should provide #to_xml" do

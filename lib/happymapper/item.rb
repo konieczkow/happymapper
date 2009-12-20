@@ -110,6 +110,19 @@ module HappyMapper
         value
       end
     end
+
+    def group_tag
+      group_tag = nil
+      if self.options[:group_tag]
+        if self.options[:group_tag].is_a? String
+          group_tag = self.options[:group_tag]
+        else
+          group_tag = self.name
+        end
+      end
+      
+      group_tag
+    end
     
     private
       def constantize(type)
