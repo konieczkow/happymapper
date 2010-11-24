@@ -81,7 +81,7 @@ module HappyMapper
       namespace = @namespace || (node.namespaces && node.namespaces.default)
       namespace = "#{DEFAULT_NS}:#{namespace}" if namespace
 
-      xpath = root ? '/' : './/'
+      xpath = root ? '/' : (node.path + '/')
       xpath += "#{DEFAULT_NS}:" if namespace
       xpath += tag_name
       
@@ -138,7 +138,7 @@ module HappyMapper
 private
 
   def has_one_and_has_many_to_xml(node, element, value)
-    node << XML::Node.new(element.name, value) and return unless element.options.include?(:single)
+    node << XML::Node.new(element.tag || element.name, value) and return unless element.options.include?(:single)
 
     if element.options[:single]
       node << value.to_xml_node
