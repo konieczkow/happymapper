@@ -3,7 +3,7 @@ dir = File.dirname(__FILE__)
 require 'date'
 require 'time'
 require 'rubygems'
-gem 'libxml-ruby', '= 2.2.2'
+gem 'libxml-ruby', '= 2.6.0'
 require 'xml'
 
 class Boolean; end
